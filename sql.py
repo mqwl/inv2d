@@ -1,11 +1,8 @@
 import sqlite3
+import csv
 
 
-con = sqlite3.connect("inventory.db")
-cur = con.cursor()
-
-
-def init_db():
+def init_db(con):
     # length, width and height are in cm
     query_initial_room = '''
     CREATE TABLE IF NOT EXISTS room(
@@ -52,20 +49,22 @@ def init_db():
         FOREIGN KEY (box_id) REFERENCES box (id)
     );
     '''
-
+    cur = con.cursor()
     cur.execute(query_initial_room)
     cur.execute(query_initial_restricted)
     cur.execute(query_initial_box)
     cur.execute(query_initial_object)
+    cur.close()
 
 
-def print_db_info():
+def print_db_info(con):
     # print every table name and its columns
     query_tablelist = '''
         SELECT name FROM sqlite_master
         WHERE type='table'
         ORDER BY name;
     '''
+    cur = con.cursor()
     cur.execute(query_tablelist)
     res = cur.fetchall()
     for row in res:
@@ -74,11 +73,27 @@ def print_db_info():
         columns = cur.fetchall()
         for col in columns:
             print(col)
+    cur.close()
 
 
-def save_table():
+def save_table(con):
     con.commit()
 
 
-# save_table()
-con.close()
+def export_objects(con, filename: str):
+    ecur = con.cursor()  # export cursor
+    ecur.execute("SELECT name, available, date, box_id FROM object;")
+    with open(filename, 'w', newline='', encoding='utf-8') as file:
+        ex = csv.writer(file)
+        ex.writerows(ecur.fetchall())
+    ecur.close()
+
+
+def import_objects(con, filename: str):
+    icur = con.cursor()  # import cursor
+    with open(filename, 'r', encoding='utf-8') as file:
+        im = csv.reader(file)
+        icur.executemany('''
+                        INSERT INTO object (name, available, date, box_id)
+                        VALUES (?, ?, ?, ?)''', im)
+    icur.close()
