@@ -1,17 +1,13 @@
+import sqlite3
 import sql
+from ui.app import App
 
-
-db_name = input("Enter database name: ")
-con = sql.sqlite3.connect(db_name)
+con = sqlite3.connect("test.db")
 sql.init_db(con)
-while True:
-    console = input('''
-        Commands:
-        Type 'p' to view DB structure
-        Type 'q' to exit and save
-        ''')
-    if console == 'p':
-        sql.print_db_info(con)
-    elif console == 'q':
-        con.close()
-        break
+
+app = App(con)
+app.mainloop()
+
+con.commit()
+con.close()
+
