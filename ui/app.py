@@ -20,7 +20,6 @@ class App(tk.Tk):
         self.frames = {}
 
         self._discover_pages(container)
-        # Стартовая страница: LoginPage если есть, иначе первая найденная
         start = 'LoginPage' if 'LoginPage' in self.frames else (next(iter(self.frames), None))
         if start:
             self.show(start)
@@ -29,7 +28,6 @@ class App(tk.Tk):
         frame = self.frames.get(page_name)
         if frame:
             frame.tkraise()
-            # If страница реализует on_show, вызывем её
             try:
                 if hasattr(frame, 'on_show'):
                     frame.on_show()

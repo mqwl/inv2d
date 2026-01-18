@@ -1,4 +1,3 @@
-# ui/pages/base.py
 import tkinter as tk
 
 DEFAULT_BG = "#F5F5F5"

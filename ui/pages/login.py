@@ -52,17 +52,15 @@ class LoginPage(BasePage):
 
         self.btn_win = self.canvas.create_window(600, 500, window=self.enter_btn)
 
-        # Относительные позиции элементов (процент от ширины/высоты)
         self.title_rel = (0.5, 0.25)
         self.btn_rel = (0.5, 0.6)
-        # Привязываем обработчик изменения размера холста
+        
         self.canvas.bind("<Configure>", self._on_resize)
 
     def _on_resize(self, event):
         w = max(1, event.width)
         h = max(1, event.height)
 
-        # Масштабируем фон под текущий размер холста
         try:
             resized = self.bg_orig.resize((w, h), Image.LANCZOS)
         except Exception:
@@ -70,7 +68,6 @@ class LoginPage(BasePage):
         self.bg_image = ImageTk.PhotoImage(resized)
         self.canvas.itemconfig(self.bg_image_id, image=self.bg_image)
 
-        # Перемещаем окна по относительным координатам
         tx = int(w * self.title_rel[0])
         ty = int(h * self.title_rel[1])
         bx = int(w * self.btn_rel[0])
@@ -78,7 +75,6 @@ class LoginPage(BasePage):
         self.canvas.coords(self.title_win, tx, ty)
         self.canvas.coords(self.btn_win, bx, by)
 
-        # Подстраиваем размер шрифтов пропорционально высоте окна
         base_height = 800.0
         scale = max(0.4, h / base_height)
         new_title_size = max(12, int(32 * scale))

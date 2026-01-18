@@ -76,7 +76,7 @@ class RoomsPage(BasePage):
         try:
             con = app.con
             cur = con.cursor()
-            cur.execute("SELECT id, length, width, height FROM room;")
+            cur.execute("SELECT id, name, length, width, height FROM room;")
             rooms = cur.fetchall()
             cur.close()
         except Exception:
@@ -100,7 +100,9 @@ class RoomsPage(BasePage):
             r = idx // 4
             relx = 0.02 + col * item_step
             rely = r * (item_relheight + vertical_gap)
-            text = f"Помещение {row[0]}"
+            rid = row[0]
+            name = row[1] if len(row) > 1 and row[1] else None
+            text = name if name else f"Помещение {rid}"
             item = tk.Button(
                 self.grid_frame,
                 text=text,
@@ -109,7 +111,7 @@ class RoomsPage(BasePage):
                 bd=1,
                 relief="solid",
                 wraplength=200,
-                command=(lambda r=row[0], a=app: (a.__setattr__('current_room_id', r), a.show('RoomDetailPage')))
+                command=(lambda r=rid, a=app: (a.__setattr__('current_room_id', r), a.show('RoomDetailPage')))
             )
             item.place(relx=relx, rely=rely, relwidth=item_relwidth, relheight=item_relheight)
 

@@ -53,22 +53,23 @@ class RoomCreatePage(BasePage):
         create_btn.pack(side="left", padx=8)
 
     def _create_room(self, app):
-        # собираем значения длина/ширина/высота
         try:
             length = int(self.dim_entries[0].get())
             width = int(self.dim_entries[1].get())
             height = int(self.dim_entries[2].get())
         except Exception:
-            # Можно добавить сообщение об ошибке позже
+            
             return
 
         try:
-            queries.add_room(app.con, length, width, height)
+            name = self.name_entry.get().strip()
+            if not name:
+                name = "Помещение"
+            queries.add_room(app.con, name, length, width, height)
             app.con.commit()
         except Exception:
             return
-
-        # Обновляем RoomsPage и возвращаемся на неё
+        
         rooms_page = app.frames.get('RoomsPage')
         if rooms_page:
             try:

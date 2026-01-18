@@ -15,25 +15,34 @@ class RoomEditPage(BasePage):
         block.place(relx=0.5, rely=0.45, anchor="center", relwidth=0.7, relheight=0.5)
         tk.Label(block, text="Введите данные помещения, которые вы хотите изменить", font=("Arial", 14, "bold"), fg="#000000", bg=self.default_bg).pack(pady=(10, 6))
 
-        # список помещений
         rooms = []
         try:
             cur = app.con.cursor()
-            cur.execute("SELECT id FROM room;")
-            rooms = [str(r[0]) for r in cur.fetchall()]
+            cur.execute("SELECT id, name FROM room;")
+            rows = cur.fetchall()
             cur.close()
+            rooms = rows
         except Exception:
             rooms = []
 
         self.sel_var = tk.StringVar(value="Выбор помещения")
-        if rooms:
-            self.sel_var.set(rooms[0])
-
-        self.option_menu = tk.OptionMenu(block, self.sel_var, *rooms)
-        self.option_menu.config(bg=WHITE, fg="#000000", width=25)
+        self.name_to_id = {}
+        self.selected_id = None
+        self.option_menu = tk.OptionMenu(block, self.sel_var, 'Выбор помещения')
+        self.option_menu.config(bg=WHITE, fg="#000000", width=40)
         self.option_menu.pack(pady=8)
+        menu = self.option_menu['menu']
+        menu.delete(0, 'end')
+        for r in rooms:
+            rid = r[0]
+            name = r[1] if r[1] else f"Помещение {rid}"
+            self.name_to_id[name] = rid
+            menu.add_command(label=name, command=lambda v=name, i=rid: self._set_selection(v, i))
+        if rooms:
+            first_name = rooms[0][1] if rooms[0][1] else f"Помещение {rooms[0][0]}"
+            self.sel_var.set(first_name)
+            self.selected_id = rooms[0][0]
 
-        # Три поля в одну строку
         dims_frame = tk.Frame(block, bg=self.default_bg)
         dims_frame.pack(pady=8)
 
@@ -49,7 +58,6 @@ class RoomEditPage(BasePage):
             e.pack(fill="x", padx=2, pady=2)
             self.dim_entries.append(e)
 
-        # Кнопки (внутри центрального блока)
         btns = tk.Frame(block, bg=self.default_bg)
         btns.pack(pady=12)
 
@@ -62,30 +70,40 @@ class RoomEditPage(BasePage):
         save_btn.pack(side="left", padx=8)
 
     def on_show(self):
-        # Обновляем список в выпадающем меню при показе страницы
         try:
             cur = self.app.con.cursor()
-            cur.execute("SELECT id FROM room;")
-            rooms = [str(r[0]) for r in cur.fetchall()]
+            cur.execute("SELECT id, name FROM room;")
+            rooms = cur.fetchall()
             cur.close()
         except Exception:
             rooms = []
 
         menu = self.option_menu['menu']
         menu.delete(0, 'end')
+        self.name_to_id = {}
         for r in rooms:
-            menu.add_command(label=r, command=lambda v=r: self.sel_var.set(v))
+            rid = r[0]
+            name = r[1] if r[1] else f"Помещение {rid}"
+            self.name_to_id[name] = rid
+            menu.add_command(label=name, command=lambda v=name, i=rid: self._set_selection(v, i))
         if rooms:
-            self.sel_var.set(rooms[0])
+            first_name = rooms[0][1] if rooms[0][1] else f"Помещение {rooms[0][0]}"
+            self.sel_var.set(first_name)
+            self.selected_id = rooms[0][0]
         else:
             self.sel_var.set('Выбор помещения')
 
+    def _set_selection(self, label, rid):
+        self.sel_var.set(label)
+        self.selected_id = rid
+
     def _edit_selected(self, app):
-        val = self.sel_var.get()
-        try:
-            rid = int(val)
-        except Exception:
-            return
+        rid = getattr(self, 'selected_id', None)
+        if rid is None:
+            try:
+                rid = int(self.sel_var.get())
+            except Exception:
+                return
 
         try:
             length = int(self.dim_entries[0].get())
@@ -95,7 +113,7 @@ class RoomEditPage(BasePage):
             return
 
         try:
-            queries.edit_room(app.con, rid, length, width, height)
+            queries.edit_room(app.con, rid, name='', length=length, width=width, height=height)
             app.con.commit()
         except Exception:
             return

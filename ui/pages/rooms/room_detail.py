@@ -45,22 +45,34 @@ class RoomDetailPage(BasePage):
             b.pack(fill='x', pady=(6 if i==0 else 4, 4), padx=6)
             self.left_buttons.append(b)
 
+        try:
+            if len(self.left_buttons) > 0:
+                self.left_buttons[0].config(command=lambda a=app: a.show('BoxesPage'))
+            if len(self.left_buttons) > 1:
+                self.left_buttons[1].config(command=lambda a=app: a.show('ObjectsPage'))
+            if len(self.left_buttons) > 2:
+                self.left_buttons[2].config(command=lambda a=app: a.show('RestrictedPage'))
+            if len(self.left_buttons) > 3:
+                self.left_buttons[3].config(command=lambda a=app: a.show('AutoLayoutPage'))
+            if len(self.left_buttons) > 4:
+                self.left_buttons[4].config(command=lambda a=app: a.show('RoomFullViewPage'))
+        except Exception:
+            pass
+
         
         self.canvas = tk.Canvas(self.right_frame, bg="#ffffff", highlightthickness=1, highlightbackground="#000000")
         self.canvas.pack(fill='both', expand=True, padx=6, pady=6)
 
     def on_show(self):
-        
         room_id = getattr(self.app, 'current_room_id', None)
         if room_id is None:
             self.header_label.config(text="Помещение")
             self.canvas.delete('all')
             return
 
-        
         try:
             cur = self.app.con.cursor()
-            cur.execute("SELECT id, length, width, height FROM room WHERE id = ?", (room_id,))
+            cur.execute("SELECT id, name, length, width, height FROM room WHERE id = ?", (room_id,))
             row = cur.fetchone()
             cur.close()
         except Exception:
@@ -71,20 +83,22 @@ class RoomDetailPage(BasePage):
             self.canvas.delete('all')
             return
 
-        rid, length, width, height = row
-        self.header_label.config(text=f"Помещение {rid}")
+        rid = row[0]
+        name = row[1] if len(row) > 1 and row[1] else None
+        length = row[2]
+        width = row[3]
+        height = row[4]
+        header_text = f"{name} ({rid})" if name else f"Помещение {rid}"
+        self.header_label.config(text=header_text)
 
-        
         self.canvas.delete('all')
         cw = self.canvas.winfo_width() or 400
         ch = self.canvas.winfo_height() or 300
 
-        # Scale room to fit canvas with margin
         margin = 20
         available_w = max(10, cw - 2 * margin)
         available_h = max(10, ch - 2 * margin)
 
-        # room length and width are in cm; scale preserving aspect ratio
         if width == 0 or length == 0:
             return
         scale = min(available_w / width, available_h / length)
@@ -97,7 +111,5 @@ class RoomDetailPage(BasePage):
         x1 = x0 + rw
         y1 = y0 + rh
 
-        # Draw room rectangle
         self.canvas.create_rectangle(x0, y0, x1, y1, fill="#f0f0f0", outline=ORANGE, width=3)
-        # Label dimensions inside
         self.canvas.create_text((cw/2, y0+10), text=f"{int(length)} x {int(width)} (cm)", anchor='n')
