@@ -51,11 +51,22 @@ def init_db(con):
         FOREIGN KEY (box_id) REFERENCES box (id)
     );
     '''
+    query_initial_movement = '''
+    CREATE TABLE IF NOT EXISTS movement(
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        object_id INTEGER NOT NULL,
+        date_rent TEXT NOT NULL,
+        date_return TEXT NOT NULL,
+        finished INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (object_id) REFERENCES object (id)
+    );
+    '''
     cur = con.cursor()
     cur.execute(query_initial_room)
     cur.execute(query_initial_restricted)
     cur.execute(query_initial_box)
     cur.execute(query_initial_object)
+    cur.execute(query_initial_movement)
     cur.close()
 
 

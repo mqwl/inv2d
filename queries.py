@@ -1,8 +1,7 @@
 import sqlite3
+from datetime import date as dt
 
-
-# TODO: add validation functions for everything,
-#       implement rent history,
+# TODO: add validation,
 #       also possibly some extra functions...
 
 def _run_query(con, query, values):
@@ -126,30 +125,70 @@ def find_object_by_id(con, id):
 
 
 def rent_object(con, id, date):
-    query = '''
+    query_object = '''
         UPDATE object
         SET date = ?,
         available = 0
         WHERE id = ?
         '''
-    values = (date, id)
-    _run_query(con, query, values)
+    values_o = (date, id)
+    query_movement = '''
+        INSERT INTO movement (object_id, date_rent, date_return)
+        VALUES (?, ?, ?)
+        '''
+    today = dt.today().strftime("%Y-%m-%d")
+    values_m = (id, today, date)
+    try:
+        _run_query(con, query_object, values_o)
+        _run_query(con, query_movement, values_m)
+    except Exception as e:
+        print(f'Error: {e}')
 
 
-def return_object(con, id):
-    query = '''
+def return_object(con, obj_id, rent_id):
+    query_object = '''
         UPDATE object
         SET date = 'NULL',
         available = 1
         WHERE id = ?
         '''
+    values_o = (obj_id, )
+    query_movement = '''
+        UPDATE movement
+        SET finished = 1
+        WHERE id = ?
+        '''
+    values_m = (rent_id, )
+    try:
+        _run_query(con, query_object, values_o)
+        _run_query(con, query_movement, values_m)
+    except Exception as e:
+        print(f'Error: {e}')
+
+
+# all movements of an object
+def history_object(con, id):
+    query = '''
+        SELECT * FROM movement
+        WHERE object_id = ?
+        '''
     values = (id, )
-    _run_query(con, query, values)
+    cur = con.cursor()
+    cur.execute(query, values)
+    results = cur.fetchall()
+    for res in results:
+        print(res)
+    cur.close()
 
 
-# TODO: track renting of objects...
-def history_object(con):
-    pass
+def print_movement(con):
+    query = 'SELECT * FROM movement'
+    cur = con.cursor()
+    cur.execute(query)
+    results = cur.fetchall()
+    for res in results:
+        print(res)
+    cur.close()
 
 
 def print_object(con):
