@@ -71,14 +71,13 @@ class BoxesPage(BasePage):
 		for child in self.box_inner.winfo_children():
 			child.destroy()
 
-		
 		room_id = getattr(self.app, 'current_room_id', None)
 		try:
 			cur = self.app.con.cursor()
 			if room_id is None:
-				cur.execute("SELECT id, edge FROM box ORDER BY id ASC;")
+				cur.execute("SELECT id, edge, pivot_x, pivot_y FROM box ORDER BY id ASC;")
 			else:
-				cur.execute("SELECT id, edge FROM box WHERE room_id = ? ORDER BY id ASC;", (room_id,))
+				cur.execute("SELECT id, edge, pivot_x, pivot_y FROM box WHERE room_id = ? ORDER BY id ASC;", (room_id,))
 			rows = cur.fetchall()
 			cur.close()
 		except Exception:
@@ -87,9 +86,13 @@ class BoxesPage(BasePage):
 		for i, row in enumerate(rows):
 			bid = row[0]
 			edge = row[1]
+			row_x = row[2]
+			row_y = row[3]
 			frame = tk.Frame(self.box_inner, bg=WHITE, bd=1, relief='solid')
 			frame.pack(fill='x', pady=6, padx=6)
 			title = tk.Label(frame, text=f"Коробка {bid}", bg=WHITE, fg="#000000", font=("Arial", 12, "bold"))
 			title.pack(anchor='w', padx=6, pady=(6, 2))
 			info = tk.Label(frame, text=f"Грань коробки: {edge}", bg=WHITE, fg="#000000")
 			info.pack(anchor='w', padx=6, pady=(0, 6))
+			coords = tk.Label(frame, text=f"Точка отсчёта: {row_x}:{row_y}", bg=WHITE, fg="#000000")
+			coords.pack(anchor='w', padx=6, pady=(0, 6))

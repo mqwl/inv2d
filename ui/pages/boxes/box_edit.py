@@ -32,13 +32,13 @@ class BoxEditPage(BasePage):
         self.e_edge = tk.Entry(fields, bg=WHITE)
         self.e_edge.grid(row=1, column=0, padx=6, pady=4)
 
-        tk.Label(fields, text="Координата X", bg=self.default_bg).grid(row=0, column=1, padx=6, sticky='w')
-        self.e_x = tk.Entry(fields, bg=WHITE)
-        self.e_x.grid(row=1, column=1, padx=6, pady=4)
+        # tk.Label(fields, text="Координата X", bg=self.default_bg).grid(row=0, column=1, padx=6, sticky='w')
+        # self.e_x = tk.Entry(fields, bg=WHITE)
+        # self.e_x.grid(row=1, column=1, padx=6, pady=4)
 
-        tk.Label(fields, text="Координата Y", bg=self.default_bg).grid(row=0, column=2, padx=6, sticky='w')
-        self.e_y = tk.Entry(fields, bg=WHITE)
-        self.e_y.grid(row=1, column=2, padx=6, pady=4)
+        # tk.Label(fields, text="Координата Y", bg=self.default_bg).grid(row=0, column=2, padx=6, sticky='w')
+        # self.e_y = tk.Entry(fields, bg=WHITE)
+        # self.e_y.grid(row=1, column=2, padx=6, pady=4)
 
         btns = tk.Frame(block, bg=self.default_bg)
         btns.pack(pady=12)
@@ -91,12 +91,13 @@ class BoxEditPage(BasePage):
                 return
         try:
             edge = int(self.e_edge.get())
-            x = int(self.e_x.get())
-            y = int(self.e_y.get())
+            # x = int(self.e_x.get())
+            # y = int(self.e_y.get())
         except Exception:
             return
         try:
-            queries.edit_box(app.con, bid, edge=edge, pivot_x=x, pivot_y=y)
+            # queries.edit_box(app.con, bid, edge=edge, pivot_x=x, pivot_y=y)
+            queries.edit_box(app.con, bid, edge=edge, pivot_x='NULL', pivot_y='NULL')
             app.con.commit()
         except Exception:
             return

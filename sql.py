@@ -16,24 +16,12 @@ def init_db(con):
     );
     '''
 
-    query_initial_restricted = '''
-    CREATE TABLE IF NOT EXISTS restricted(
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        room_id INTEGER NOT NULL,
-        pivot_x INTEGER NOT NULL CHECK (pivot_x >= 0),
-        pivot_y INTEGER NOT NULL CHECK (pivot_y >= 0),
-        length INTEGER NOT NULL CHECK (length > 0),
-        width INTEGER NOT NULL CHECK (width > 0),
-        FOREIGN KEY (room_id) REFERENCES room (id)
-    );
-    '''
-
     query_initial_box = '''
     CREATE TABLE IF NOT EXISTS box(
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         edge INTEGER NOT NULL CHECK (edge > 0),
-        pivot_x INTEGER NOT NULL CHECK (pivot_x >= 0),
-        pivot_y INTEGER NOT NULL CHECK (pivot_y >= 0),
+        pivot_x INTEGER CHECK (pivot_x >= 0),
+        pivot_y INTEGER CHECK (pivot_y >= 0),
         room_id INTEGER,
         FOREIGN KEY (room_id) REFERENCES room (id)
     );
@@ -63,7 +51,6 @@ def init_db(con):
     '''
     cur = con.cursor()
     cur.execute(query_initial_room)
-    cur.execute(query_initial_restricted)
     cur.execute(query_initial_box)
     cur.execute(query_initial_object)
     cur.execute(query_initial_movement)

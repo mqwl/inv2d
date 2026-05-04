@@ -1,3 +1,14 @@
+# Под удаление
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
 import tkinter as tk
 import tkinter.font as tkfont
 import tkinter.messagebox as messagebox

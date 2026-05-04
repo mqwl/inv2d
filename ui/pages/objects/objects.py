@@ -32,6 +32,7 @@ class ObjectsPage(BasePage):
 			"Добавить объект",
 			"Изменить объект",
 			"Удалить объект",
+			"Перемещения объектов"
 		]
 
 		self.left_buttons = []
@@ -47,6 +48,8 @@ class ObjectsPage(BasePage):
 				self.left_buttons[1].config(command=lambda a=app: a.show('ObjectEditPage'))
 			if len(self.left_buttons) > 2:
 				self.left_buttons[2].config(command=lambda a=app: a.show('ObjectDeletePage'))
+			if len(self.left_buttons) > 3:
+				self.left_buttons[3].config(command=lambda a=app: a.show('ObjectMovementPage'))
 		except Exception:
 			pass
 

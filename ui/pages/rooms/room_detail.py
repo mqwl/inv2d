@@ -34,9 +34,7 @@ class RoomDetailPage(BasePage):
         buttons = [
             "Список коробок",
             "Список объектов",
-            "Список запретных зон",
-            "Эффективно занять пространство",
-            "Просмотр помещения полностью",
+            "Авторасположение и визуализация",
         ]
 
         self.left_buttons = []
@@ -50,12 +48,12 @@ class RoomDetailPage(BasePage):
                 self.left_buttons[0].config(command=lambda a=app: a.show('BoxesPage'))
             if len(self.left_buttons) > 1:
                 self.left_buttons[1].config(command=lambda a=app: a.show('ObjectsPage'))
+            # if len(self.left_buttons) > 2:
+            #     self.left_buttons[2].config(command=lambda a=app: a.show('RestrictedPage'))
+            # if len(self.left_buttons) > 3:
+            #     self.left_buttons[3].config(command=lambda a=app: a.show('AutoLayoutPage'))
             if len(self.left_buttons) > 2:
-                self.left_buttons[2].config(command=lambda a=app: a.show('RestrictedPage'))
-            if len(self.left_buttons) > 3:
-                self.left_buttons[3].config(command=lambda a=app: a.show('AutoLayoutPage'))
-            if len(self.left_buttons) > 4:
-                self.left_buttons[4].config(command=lambda a=app: a.show('RoomFullViewPage'))
+                self.left_buttons[2].config(command=lambda a=app: a.show('RoomFullViewPage'))
         except Exception:
             pass
 
@@ -112,4 +110,4 @@ class RoomDetailPage(BasePage):
         y1 = y0 + rh
 
         self.canvas.create_rectangle(x0, y0, x1, y1, fill="#f0f0f0", outline=ORANGE, width=3)
-        self.canvas.create_text((cw/2, y0+10), text=f"{int(length)} x {int(width)} (cm)", anchor='n')
+        self.canvas.create_text((cw/2, y0+10), text=f"{int(length)} x {int(width)} x {int(height)} (cm)", anchor='n')

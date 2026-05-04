@@ -10,4 +10,3 @@ app.mainloop()
 
 con.commit()
 con.close()
-

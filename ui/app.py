@@ -9,7 +9,7 @@ class App(tk.Tk):
 
     def __init__(self, con):
         super().__init__()
-        self.title("Inventory System")
+        self.title("inv2d")
         self.geometry("1200x800")
 
         self.con = con
