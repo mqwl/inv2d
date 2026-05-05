@@ -2,7 +2,7 @@ import sqlite3
 import sql
 from ui.app import App
 
-con = sqlite3.connect("test.db")
+con = sqlite3.connect("inv2d.db")
 sql.init_db(con)
 
 app = App(con)

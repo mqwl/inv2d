@@ -2,19 +2,21 @@ import tkinter as tk
 import tkinter.font as tkfont
 from ui.pages.base import BasePage
 import queries
+import tkinter.messagebox as messagebox
+import datetime
 
 ORANGE = "#F47C2C"
 WHITE = "#FFFFFF"
 
 
-class ObjectEditPage(BasePage):
+class ObjectRentPage(BasePage):
     def __init__(self, parent, app):
         super().__init__(parent, app)
 
         block = tk.Frame(self, bg=self.default_bg)
         block.place(relx=0.5, rely=0.45, anchor="center", relwidth=0.7, relheight=0.55)
 
-        tk.Label(block, text="Выберите объект для изменения", font=("Arial", 14, "bold"), fg="#000000", bg=self.default_bg).pack(pady=(6, 4))
+        tk.Label(block, text="Выберите объект для сдачи в аренду", font=("Arial", 14, "bold"), fg="#000000", bg=self.default_bg).pack(pady=(6, 4))
 
         self.sel_var = tk.StringVar(value="Выбор объекта")
         self.selected_id = None
@@ -22,18 +24,12 @@ class ObjectEditPage(BasePage):
         self.option_menu.config(bg=WHITE, fg="#000000", width=50)
         self.option_menu.pack(pady=8)
 
-        tk.Label(block, text="Введите новые данные объекта", bg=self.default_bg).pack(pady=(8, 4))
-
         fields = tk.Frame(block, bg=self.default_bg)
         fields.pack(pady=8)
 
         tk.Label(fields, text="Дата конца аренды (YYYY-MM-DD)", bg=self.default_bg).grid(row=0, column=0, sticky='w', padx=6)
         self.e_date = tk.Entry(fields, bg=WHITE)
         self.e_date.grid(row=1, column=0, padx=6, pady=4)
-
-        tk.Label(fields, text="Название", bg=self.default_bg).grid(row=0, column=1, sticky='w', padx=6)
-        self.e_name = tk.Entry(fields, bg=WHITE)
-        self.e_name.grid(row=1, column=1, padx=6, pady=4)
 
         tk.Label(fields, text="Телефон заемщика", bg=self.default_bg).grid(row=0, column=2, sticky='w', padx=6)
         self.e_phone = tk.Entry(fields, bg=WHITE)
@@ -57,7 +53,7 @@ class ObjectEditPage(BasePage):
         try:
             cur = app.con.cursor()
             if room_id is None:
-                cur.execute("SELECT id, name FROM object ORDER BY id ASC;")
+                cur.execute("SELECT id, name FROM object WHERE available = 1 ORDER BY id ASC;")
             else:
                 cur.execute(
                     "SELECT o.id, o.name FROM object o JOIN box b ON o.box_id = b.id WHERE b.room_id = ? ORDER BY o.id ASC;",
@@ -97,13 +93,39 @@ class ObjectEditPage(BasePage):
                 oid = int(self.sel_var.get())
             except Exception:
                 return
-        name = self.e_name.get().strip()
+        phone = self.e_phone.get().strip()
+        date = self.e_date.get().strip()
         try:
-            if name:
+            if not phone or len(phone) != 10 or not phone.isdigit():
+                messagebox.showwarning('Ошибка', 'Введите корректный номер (10 цифр без символов)')
+                return
+            try:
+                input_date = datetime.date.fromisoformat(date)
+                if input_date < datetime.date.today():
+                    messagebox.showwarning('Ошибка', 'Дата не может быть в прошлом')
+                    return
+            except ValueError:
+                messagebox.showwarning('Ошибка', 'Введите дату в формате ГГГГ-ММ-ДД')
+                return
+            else:
                 try:
-                    queries.edit_object(app.con, oid, name=name)
+                    query = '''
+                        SELECT available FROM object
+                        WHERE id = ?
+                        '''
+                    values = (oid, )
+                    cur = app.con.cursor()
+                    cur.execute(query, values)
+                    res = cur.fetchone()[0]
+                    cur.close()
+                    if res == 1:
+                        queries.rent_object(app.con, oid, phone, date)
+                    else:
+                        messagebox.showwarning('Ошибка', 'Объект уже арендован')
+                        return
                 except Exception:
                     pass
+
             app.con.commit()
         except Exception:
             return

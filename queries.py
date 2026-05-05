@@ -12,9 +12,6 @@ import numpy as np
 import io
 from PIL import Image
 
-# TODO: add validation,
-#       also possibly some extra functions...
-
 
 def _run_query(con, query, values):
     cur = con.cursor()
@@ -182,7 +179,8 @@ def find_object_by_id(con, id):
     cur.close()
 
 
-def rent_object(con, id, date):
+def rent_object(con, id, phone, date):
+    today = dt.today().strftime("%Y-%m-%d")
     query_object = '''
         UPDATE object
         SET date = ?,
@@ -191,11 +189,10 @@ def rent_object(con, id, date):
         '''
     values_o = (date, id)
     query_movement = '''
-        INSERT INTO movement (object_id, date_rent, date_return)
-        VALUES (?, ?, ?)
+        INSERT INTO movement (object_id, phone, date_rent, date_return)
+        VALUES (?, ?, ?, ?)
         '''
-    today = dt.today().strftime("%Y-%m-%d")
-    values_m = (id, today, date)
+    values_m = (id, phone, today, date)
     try:
         _run_query(con, query_object, values_o)
         _run_query(con, query_movement, values_m)
@@ -404,6 +401,8 @@ def calculate_placement(con, id):
                 SET pivot_x = ?, pivot_y = ?
                 WHERE id = ?
             ''', (x, y, item.payload))
+    unfit = len(packer.unfitted_items)
+    print(unfit)
     con.commit()
     cur3.close()
     doc = make_doc()
@@ -412,4 +411,4 @@ def calculate_placement(con, id):
     room_size = (results2[1], results2[2], results2[3])
     setup_iso_view(doc, model_size=room_size)
 
-    return render_placement(doc)
+    return render_placement(doc), unfit

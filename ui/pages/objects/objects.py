@@ -31,6 +31,8 @@ class ObjectsPage(BasePage):
 		buttons = [
 			"Добавить объект",
 			"Изменить объект",
+			"Сдать в аренду",
+			"Вернуть объект",
 			"Удалить объект",
 			"Перемещения объектов"
 		]
@@ -47,9 +49,13 @@ class ObjectsPage(BasePage):
 			if len(self.left_buttons) > 1:
 				self.left_buttons[1].config(command=lambda a=app: a.show('ObjectEditPage'))
 			if len(self.left_buttons) > 2:
-				self.left_buttons[2].config(command=lambda a=app: a.show('ObjectDeletePage'))
+				self.left_buttons[2].config(command=lambda a=app: a.show('ObjectRentPage'))
 			if len(self.left_buttons) > 3:
-				self.left_buttons[3].config(command=lambda a=app: a.show('ObjectMovementPage'))
+				self.left_buttons[3].config(command=lambda a=app: a.show('ObjectReturnPage'))
+			if len(self.left_buttons) > 4:
+				self.left_buttons[4].config(command=lambda a=app: a.show('ObjectDeletePage'))
+			if len(self.left_buttons) > 5:
+				self.left_buttons[5].config(command=lambda a=app: a.show('ObjectMovementPage'))
 		except Exception:
 			pass
 
@@ -98,7 +104,7 @@ class ObjectsPage(BasePage):
 
 			frame = tk.Frame(self.obj_inner, bg=WHITE, bd=1, relief='solid')
 			frame.pack(fill='x', pady=6, padx=6)
-			title = tk.Label(frame, text=f"{name}", bg=WHITE, fg="#000000", font=("Arial", 12, "bold"))
+			title = tk.Label(frame, text=f"{name} ({oid})", bg=WHITE, fg="#000000", font=("Arial", 12, "bold"))
 			title.pack(anchor='w', padx=6, pady=(6, 2))
 
 			box_text = f"Коробка {box_id}" if box_id else "Без коробки"
@@ -108,18 +114,7 @@ class ObjectsPage(BasePage):
 				avail_text = "В наличии" if available == 1 else "Занят"
 			parts = [box_text, avail_text]
 			if date and date != 'NULL':
-				parts.append(f"Дата конца аренды: {date}")
-			# phone is shown only if present in schema; actual value not available otherwise
-			if has_phone:
-				try:
-					cur = self.app.con.cursor()
-					cur.execute("SELECT phone FROM object WHERE id = ?", (oid,))
-					phone_row = cur.fetchone()
-					cur.close()
-					if phone_row and phone_row[0]:
-						parts.append(f"Телефон арендующего: {phone_row[0]}")
-				except Exception:
-					pass
+				parts.append(f"Дата сдачи в аренду: {date}")
 
 			info = tk.Label(frame, text=" | ".join(parts), bg=WHITE, fg="#000000", wraplength=600, justify='left')
 			info.pack(anchor='w', padx=6, pady=(0, 6))

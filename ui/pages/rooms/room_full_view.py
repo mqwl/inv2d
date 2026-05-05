@@ -50,7 +50,7 @@ class RoomFullViewPage(BasePage):
         )
         self.update()
         try:
-            img = queries.calculate_placement(self.app.con, room_id)
+            img, unfit = queries.calculate_placement(self.app.con, room_id)
             cw = self.canvas.winfo_width()
             ch = self.canvas.winfo_height()
             img.thumbnail((cw, ch))
@@ -58,6 +58,13 @@ class RoomFullViewPage(BasePage):
             self.canvas.delete('all')
             self.canvas.create_image(cw / 2, ch / 2,
                                      image=self.tk_image, anchor='center')
+            if (unfit > 0):
+                self.canvas.create_text(
+                    self.canvas.winfo_width() / 2,
+                    self.canvas.winfo_height() / 2,
+                    text="Некоторые коробки не поместились, см. список коробок",
+                    font=("Arial", 16, "bold")
+                )
 
         except Exception as e:
             self.canvas.delete('all')

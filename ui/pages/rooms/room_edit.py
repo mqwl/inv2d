@@ -1,3 +1,13 @@
+# неиспользовано
+#
+#
+#
+#
+#
+#
+#
+#
+#
 import tkinter as tk
 import tkinter.font as tkfont
 from ui.pages.base import BasePage

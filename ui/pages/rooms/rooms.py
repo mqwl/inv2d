@@ -37,13 +37,12 @@ class RoomsPage(BasePage):
         btn_names = [
             ("Добавить помещение", "RoomCreatePage"),
             ("Удалить помещение", "RoomDeletePage"),
-            ("Редактировать помещение", "RoomEditPage"),
         ]
 
 
         left_margin = 0.04
         gap = 0.03
-        btn_relwidth = (1.0 - 2 * left_margin - 2 * gap) / 3.0
+        btn_relwidth = (1.0 - 2 * left_margin - 2 * gap) / 2.0
 
         for i, (text, page_name) in enumerate(btn_names):
             relx = left_margin + i * (btn_relwidth + gap)

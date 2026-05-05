@@ -43,6 +43,7 @@ def init_db(con):
     CREATE TABLE IF NOT EXISTS movement(
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         object_id INTEGER NOT NULL,
+        phone INTEGER CHECK (length(phone) == 10),
         date_rent TEXT NOT NULL,
         date_return TEXT NOT NULL,
         finished INTEGER NOT NULL DEFAULT 0,
